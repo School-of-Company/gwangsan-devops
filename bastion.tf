@@ -18,7 +18,7 @@ resource "aws_key_pair" "bastion-key-pair" {
 
 resource "local_file" "bastion_private_key" {
   content = tls_private_key.bastion_key.private_key_pem
-  filename = "${path.module}/bastion_key.pem"
+  filename = "${path.module}/gwangsan-key.pem"
 }
 
 ## bastion role
@@ -57,7 +57,6 @@ resource "aws_instance" "bastion" {
   subnet_id = module.vpc.public_subnets[0]
   key_name = aws_key_pair.bastion-key-pair.key_name 
   iam_instance_profile = aws_iam_instance_profile.bastion_profile.id
-  user_data = data.template_file.ec2-docker.rendered
 
   vpc_security_group_ids = [
     aws_security_group.bastion-sg.id
