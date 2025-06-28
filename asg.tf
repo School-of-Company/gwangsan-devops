@@ -4,10 +4,15 @@ resource "aws_launch_template" "gwangsan-template" {
   instance_type = "t3.small"
   user_data     = base64encode(data.template_file.apache.rendered)
   key_name = aws_key_pair.bastion-key-pair.key_name
+  
 
   network_interfaces {
+    associate_public_ip_address = false
+    device_index = 0
+    subnet_id = module.vpc.private_subnets[0]
     security_groups = [aws_security_group.app-sg.id]
   }
+  
 
   lifecycle {
     create_before_destroy = false
@@ -28,7 +33,7 @@ resource "aws_autoscaling_group" "gwangsan-asg" {
   desired_capacity = 2
   max_size = 3
   min_size = 2
-  vpc_zone_identifier = module.vpc.public_subnets
+  vpc_zone_identifier = module.vpc.private_subnets
   launch_template {
     id = aws_launch_template.gwangsan-template.id
     version = "$Latest"
