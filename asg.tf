@@ -1,9 +1,42 @@
+resource "aws_iam_role" "asg_instance_role" {
+  name = "asg_instance_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codedeploy" {
+  role       = aws_iam_role.asg_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.asg_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "asg_instance_profile" {
+  name = "asg_instance_profile"
+  role = aws_iam_role.asg_instance_role.name
+}
+
 resource "aws_launch_template" "gwangsan-template" {
   name          = "${var.prefix}_template"
   image_id      = data.aws_ami.amazon-linux-2.id
   instance_type = "t3.small"
   user_data     = base64encode(data.template_file.apache.rendered)
   key_name = aws_key_pair.bastion-key-pair.key_name
+  iam_instance_profile {
+    name = aws_iam_instance_profile.asg_instance_profile.name
+  }
   
 
   network_interfaces {
