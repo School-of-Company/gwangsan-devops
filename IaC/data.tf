@@ -1,14 +1,11 @@
 data "template_file" "asg-user-data" {
   template = <<-EOF
               #!/bin/bash
-              sudo yum update -y
-              sudo yum install -y nginx docker
-              sudo systyemctl start nginx
+              sudo apt update -y
+              sudo apt-get install -y docker
               sudo systemctl start docker
               sudo usermod -aG docker ec2-user
               sudo newgrp docker
-              sudo vi /etc/nginx/sites-available/default
-              sudo systemctl restart nginx
             EOF
 }
 
