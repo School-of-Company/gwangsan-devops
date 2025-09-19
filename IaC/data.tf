@@ -15,8 +15,10 @@ data "template_file" "asg-user-data" {
 data "template_file" "mariadb" {
   template = <<-EOF
               #!/bin/bash
-              sudo yum update -y 
-              sudo yum install -y mariadb105-server
+              sudo apt-get update -y
+              sudo apt-get install -y mariadb-server
+
+              sudo systemctl enable mariadb
               sudo systemctl start mariadb
               sudo systemctl status mariadb
             EOF
@@ -25,8 +27,8 @@ data "template_file" "mariadb" {
 data "template_file" "redis" {
   template = <<-EOF
               #!/bin/bash
-              sudo yum update -y 
-              sudo yum install -y redis
+              sudo apt-get update -y 
+              sudo apt-get install -y redis
               sudo systemctl start redis
               sudo systemctl status redis
             EOF
